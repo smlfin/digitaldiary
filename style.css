@@ -8,7 +8,7 @@ select {
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234B5563' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg'%3e");
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234B5563' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
     background-repeat: no-repeat;
     background-position: right 0.75rem center;
     background-size: 1em;
@@ -26,7 +26,6 @@ select:disabled {
     border-radius: 0.5rem;
     padding: 1.5rem;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-    /* Ensure height is dynamic */
     height: auto;
 }
 
@@ -53,6 +52,7 @@ select:disabled {
     font-weight: 600;
     color: #1f2937;
     line-height: 1.5;
+    word-wrap: break-word; /* Added for long content */
 }
 
 @keyframes pulse {
@@ -65,11 +65,11 @@ select:disabled {
 }
 
 /* Distinctive colors for each card based on the new layout logic */
-.lead-&-employee-info {
+.lead-employee-info {
     background-color: #e0f7fa; /* Light Cyan */
 }
 
-.job-&-income {
+.job-income {
     background-color: #fff3e0; /* Light Orange */
 }
 
@@ -77,10 +77,10 @@ select:disabled {
     background-color: #f3e5f5; /* Light Purple */
 }
 
-.personal-&-family-details {
+.personal-family-details {
     background-color: #e8f5e9; /* Light Green */
 }
 
-.lead-status-&-follow-up {
+.lead-status-follow-up {
     background-color: #e1f5fe; /* Lighter Blue */
 }

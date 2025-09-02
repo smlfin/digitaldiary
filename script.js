@@ -19,10 +19,26 @@ document.addEventListener('DOMContentLoaded', () => {
             const headers = rows[0].split(',').map(header => header.trim().replace(/[^a-zA-Z0-9]/g, ''));
 
             const parsedData = rows.slice(1).map(row => {
-                const values = row.split(',');
+                const values = [];
+                let inQuote = false;
+                let currentItem = '';
+
+                for (let i = 0; i < row.length; i++) {
+                    const char = row[i];
+                    if (char === '"') {
+                        inQuote = !inQuote;
+                    } else if (char === ',' && !inQuote) {
+                        values.push(currentItem.trim());
+                        currentItem = '';
+                    } else {
+                        currentItem += char;
+                    }
+                }
+                values.push(currentItem.trim()); // Push the last item
+
                 const obj = {};
                 headers.forEach((header, i) => {
-                    obj[header] = values[i] ? values[i].trim() : 'N/A';
+                    obj[header] = values[i] || 'N/A';
                 });
                 return obj;
             });
@@ -173,7 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
             group.forEach(sectionTitle => {
                 const sectionItems = sections[sectionTitle];
                 if (sectionItems) {
-                    htmlContent += `<div class="detail-card ${sectionTitle.toLowerCase().replace(/ /g, '-')}">
+                    htmlContent += `<div class="detail-card ${sectionTitle.toLowerCase().replace(/ & /g, '-').replace(/ /g, '-').replace(/\//g, '')}">
                         <h3 class="text-xl font-semibold">${sectionTitle}</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8">`;
                     sectionItems.forEach(item => {
