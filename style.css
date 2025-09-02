@@ -52,7 +52,6 @@ select:disabled {
     font-weight: 600;
     color: #1f2937;
     line-height: 1.5;
-    word-wrap: break-word; /* Added for long content */
 }
 
 @keyframes pulse {

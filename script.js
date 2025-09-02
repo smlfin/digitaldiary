@@ -8,6 +8,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const noDataMessage = document.getElementById('no-data-message');
     const messageText = document.getElementById('message-text');
 
+    // New dropdown menu elements
+    const reportsMenuButton = document.getElementById('reports-menu-button');
+    const reportsDropdown = document.getElementById('reports-dropdown');
+
     let allData = [];
 
     const fetchAndParseData = async () => {
@@ -207,6 +211,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         customerDetailsDiv.innerHTML = htmlContent;
     };
+
+    // Toggle dropdown menu
+    reportsMenuButton.addEventListener('click', () => {
+        reportsDropdown.classList.toggle('hidden');
+    });
 
     initDashboard();
 });
