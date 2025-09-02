@@ -8,11 +8,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const noDataMessage = document.getElementById('no-data-message');
     const messageText = document.getElementById('message-text');
 
-    // New dropdown menu elements
-    const reportsMenuButton = document.getElementById('reports-menu-button');
-    const reportsDropdown = document.getElementById('reports-dropdown');
-
     let allData = [];
+
+    // This new function provides a robust way to parse CSV rows, handling commas inside quoted fields.
+    const parseCSVRow = (row) => {
+        const values = [];
+        let inQuote = false;
+        let currentItem = '';
+
+        for (let i = 0; i < row.length; i++) {
+            const char = row[i];
+            if (char === '"') {
+                inQuote = !inQuote;
+            } else if (char === ',' && !inQuote) {
+                values.push(currentItem.trim());
+                currentItem = '';
+            } else {
+                currentItem += char;
+            }
+        }
+        values.push(currentItem.trim());
+        return values;
+    };
 
     const fetchAndParseData = async () => {
         try {
@@ -20,68 +37,44 @@ document.addEventListener('DOMContentLoaded', () => {
             const csvText = await response.text();
             
             const rows = csvText.split('\n').filter(row => row.trim() !== '');
-            const headers = rows[0].split(',').map(header => header.trim().replace(/[^a-zA-Z0-9]/g, ''));
+            const headers = parseCSVRow(rows[0]).map(header => header.trim().replace(/[^a-zA-Z0-9]/g, ''));
 
             const parsedData = rows.slice(1).map(row => {
-                const values = [];
-                let inQuote = false;
-                let currentItem = '';
-
-                for (let i = 0; i < row.length; i++) {
-                    const char = row[i];
-                    if (char === '"') {
-                        inQuote = !inQuote;
-                    } else if (char === ',' && !inQuote) {
-                        values.push(currentItem.trim());
-                        currentItem = '';
-                    } else {
-                        currentItem += char;
-                    }
-                }
-                values.push(currentItem.trim()); // Push the last item
-
+                const values = parseCSVRow(row);
                 const obj = {};
                 headers.forEach((header, i) => {
-                    obj[header] = values[i] || 'N/A';
+                    obj[header] = values[i] || '';
                 });
                 return obj;
             });
-            return parsedData;
-        } catch (error) {
-            console.error("Error fetching or parsing CSV:", error);
-            messageText.textContent = "Failed to load data. Please check the CSV link and your network connection.";
-            return [];
-        }
-    };
 
-    const initDashboard = async () => {
-        allData = await fetchAndParseData();
-        if (allData.length > 0) {
-            populateBranches();
-            noDataMessage.classList.add('hidden');
-        } else {
-            messageText.textContent = "No data found in the Google Sheet.";
+            allData = parsedData;
+            populateBranches(allData);
+            messageText.textContent = "Please select an employee and customer from the dropdown menus.";
             noDataMessage.classList.remove('hidden');
+            customerDetailsDiv.classList.add('hidden');
+
+        } catch (error) {
+            console.error('Error fetching or parsing data:', error);
+            messageText.textContent = "Failed to load data. Please try again later.";
         }
     };
 
-    const populateBranches = () => {
-        const branches = [...new Set(allData.map(lead => lead.BRANCHNAME))];
+    const populateBranches = (data) => {
+        const branches = [...new Set(data.map(item => item.BRANCHNAME).filter(Boolean))];
+        branchSelect.innerHTML = `<option value="" disabled selected>-- Select Branch --</option>`;
         branches.forEach(branch => {
             const option = document.createElement('option');
             option.value = branch;
             option.textContent = branch;
             branchSelect.appendChild(option);
         });
+        branchSelect.addEventListener('change', () => populateEmployees(data, branchSelect.value));
     };
 
-    branchSelect.addEventListener('change', () => {
-        const selectedBranch = branchSelect.value;
-        const employees = [...new Set(allData
-            .filter(lead => lead.BRANCHNAME === selectedBranch)
-            .map(lead => lead.EMPLOYEENAME))];
-
-        employeeSelect.innerHTML = '<option value="" disabled selected>-- Select Employee --</option>';
+    const populateEmployees = (data, branchName) => {
+        const employees = [...new Set(data.filter(item => item.BRANCHNAME === branchName).map(item => item.EMPLOYEENAME).filter(Boolean))];
+        employeeSelect.innerHTML = `<option value="" disabled selected>-- Select Employee --</option>`;
         employees.forEach(employee => {
             const option = document.createElement('option');
             option.value = employee;
@@ -90,20 +83,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         employeeSelect.disabled = false;
         customerSelect.disabled = true;
-        customerSelect.innerHTML = '<option value="" disabled selected>-- Select Customer --</option>';
-        customerDetailsDiv.classList.add('hidden');
-        noDataMessage.classList.remove('hidden');
-        messageText.textContent = "Please select an employee and customer to view details.";
-    });
+        customerSelect.innerHTML = `<option value="" disabled selected>-- Select Customer --</option>`;
+        hideAllContent();
+        employeeSelect.addEventListener('change', () => populateCustomers(data, branchName, employeeSelect.value));
+    };
 
-    employeeSelect.addEventListener('change', () => {
-        const selectedBranch = branchSelect.value;
-        const selectedEmployee = employeeSelect.value;
-        const customers = allData
-            .filter(lead => lead.BRANCHNAME === selectedBranch && lead.EMPLOYEENAME === selectedEmployee)
-            .map(lead => lead.CustomerName);
-
-        customerSelect.innerHTML = '<option value="" disabled selected>-- Select Customer --</option>';
+    const populateCustomers = (data, branchName, employeeName) => {
+        const customers = data.filter(item => item.BRANCHNAME === branchName && item.EMPLOYEENAME === employeeName).map(item => item.CustomerName).filter(Boolean);
+        customerSelect.innerHTML = `<option value="" disabled selected>-- Select Customer --</option>`;
         customers.forEach(customer => {
             const option = document.createElement('option');
             option.value = customer;
@@ -111,41 +98,37 @@ document.addEventListener('DOMContentLoaded', () => {
             customerSelect.appendChild(option);
         });
         customerSelect.disabled = false;
+        hideAllContent();
+        customerSelect.addEventListener('change', () => {
+            const customerName = customerSelect.value;
+            const customerData = data.find(item => item.BRANCHNAME === branchName && item.EMPLOYEENAME === employeeName && item.CustomerName === customerName);
+            if (customerData) {
+                renderCustomerDetails(customerData);
+            }
+        });
+    };
+
+    const hideAllContent = () => {
         customerDetailsDiv.classList.add('hidden');
         noDataMessage.classList.remove('hidden');
-        messageText.textContent = "Please select a customer to view details.";
-    });
-
-    customerSelect.addEventListener('change', () => {
-        const selectedCustomer = customerSelect.value;
-        const customerData = allData.find(lead => lead.CustomerName === selectedCustomer);
-
-        if (customerData) {
-            renderCustomerDetails(customerData);
-            customerDetailsDiv.classList.remove('hidden');
-            noDataMessage.classList.add('hidden');
-        } else {
-            customerDetailsDiv.classList.add('hidden');
-            noDataMessage.classList.remove('hidden');
-            messageText.textContent = "No data found for the selected customer.";
-        }
-    });
+        messageText.textContent = "Please select a customer to view their details.";
+    };
 
     const renderCustomerDetails = (data) => {
         const sections = {
             "Lead & Employee Info": [
-                { key: 'Timestamp', label: 'Timestamp' },
-                { key: 'BRANCHNAME', label: 'Branch Name' },
-                { key: 'EMPLOYEENAME', label: 'Employee Name' },
-                { key: 'EMPLOYEECODE', label: 'Employee Code' }
+                { key: "BRANCHNAME", label: "Branch Name" },
+                { key: "EMPLOYEENAME", label: "Employee Name" },
+                { key: "EMPLOYEECODE", label: "Employee Code" },
+                { key: "CustomerName", label: "Customer Name" }
             ],
             "Job & Income": [
-                { key: 'JobCategory', label: 'Job Category' },
-                { key: 'JobDetails', label: 'Job Details' },
-                { key: 'Averagemonthlycome', label: 'Average Monthly Income' }
+                { key: "JobCategory", label: "Job Category" },
+                { key: "JobDetails", label: "Job Details" },
+                { key: "Averagemonthlycome", label: "Average Monthly Income" }
             ],
             "Customer Contact Details": [
-                { key: 'CustomerName', label: 'Customer Name' },
+                 { key: 'CustomerName', label: 'Customer Name' },
                 { key: 'CustomerAddress', label: 'Customer Address' },
                 { key: 'StreetPlace', label: 'Street / Place' },
                 { key: 'District', label: 'District' },
@@ -165,8 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 { key: 'Detaileddescriptionrelation', label: 'Detailed Description & Relation' }
             ],
             "Lead Status & Follow-up": [
-                { key: 'ProductDiscussed', label: 'Product Discussed' },
-                { key: 'ClosedAmount', label: 'Closed Amount' },
+                 { key: 'ClosedAmount', label: 'Closed Amount' },
                 { key: 'Howmanyvisitcompleted', label: 'Number of Visits Completed' },
                 { key: 'VisitDays', label: 'Visit Days' },
                 { key: 'Mention2ndvisit', label: 'Mention 2nd Visit' },
@@ -189,11 +171,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let htmlContent = '';
         sectionGroups.forEach(group => {
-            htmlContent += `<div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">`;
+            const groupClasses = group.length === 1 ? 'grid-cols-1' : 'md:grid-cols-2';
+            htmlContent += `<div class="grid grid-cols-1 ${groupClasses} gap-8 mb-8">`;
             group.forEach(sectionTitle => {
                 const sectionItems = sections[sectionTitle];
                 if (sectionItems) {
-                    htmlContent += `<div class="detail-card ${sectionTitle.toLowerCase().replace(/ & /g, '-').replace(/ /g, '-').replace(/\//g, '')}">
+                    htmlContent += `<div class="detail-card ${sectionTitle.toLowerCase().replace(/ & /g, '-').replace(/ /g, '-')
+}">
                         <h3 class="text-xl font-semibold">${sectionTitle}</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8">`;
                     sectionItems.forEach(item => {
@@ -210,12 +194,9 @@ document.addEventListener('DOMContentLoaded', () => {
             htmlContent += `</div>`;
         });
         customerDetailsDiv.innerHTML = htmlContent;
+        customerDetailsDiv.classList.remove('hidden');
+        noDataMessage.classList.add('hidden');
     };
 
-    // Toggle dropdown menu
-    reportsMenuButton.addEventListener('click', () => {
-        reportsDropdown.classList.toggle('hidden');
-    });
-
-    initDashboard();
+    fetchAndParseData();
 });

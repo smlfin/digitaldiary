@@ -26,6 +26,7 @@ select:disabled {
     border-radius: 0.5rem;
     padding: 1.5rem;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    /* Ensure height is dynamic */
     height: auto;
 }
 
@@ -51,35 +52,37 @@ select:disabled {
     font-size: 1rem;
     font-weight: 600;
     color: #1f2937;
-    line-height: 1.5;
+    line-height: 1.5rem;
 }
 
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: .5; }
+/* Specific styling for the 2-2-1 layout */
+#left-page, #right-page {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
 }
 
-.animate-pulse {
-    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+.full-width-card {
+    grid-column: span 2;
 }
 
-/* Distinctive colors for each card based on the new layout logic */
+/* Distinctive colors for each of the five tiles */
 .lead-employee-info {
-    background-color: #e0f7fa; /* Light Cyan */
+    background-color: #f3e8ff; /* Light Purple */
 }
 
 .job-income {
-    background-color: #fff3e0; /* Light Orange */
+    background-color: #e0f2fe; /* Light Blue */
 }
 
 .customer-contact-details {
-    background-color: #f3e5f5; /* Light Purple */
+    background-color: #fef9c3; /* Light Yellow */
 }
 
 .personal-family-details {
-    background-color: #e8f5e9; /* Light Green */
+    background-color: #dcfce7; /* Light Green */
 }
 
 .lead-status-follow-up {
-    background-color: #e1f5fe; /* Lighter Blue */
+    background-color: #fee2e2; /* Light Red */
 }

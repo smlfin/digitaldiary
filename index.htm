@@ -28,7 +28,10 @@
                 </div>
                 <div class="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none hidden" role="menu" aria-orientation="vertical" aria-labelledby="reports-menu-button" tabindex="-1" id="reports-dropdown">
                     <div class="py-1" role="none">
-                        <a href="report.html" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem" tabindex="-1" id="menu-item-0">Performance Report</a>
+                        <a href="combined_reports.htm" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem" tabindex="-1">Combined Reports</a>
+                        <a href="performance_report.htm" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem" tabindex="-1">Performance Report</a>
+                        <a href="demographics_report.htm" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem" tabindex="-1">Customer & Demographic Insights</a>
+                        <a href="lifecycle_report.htm" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem" tabindex="-1">Lead Lifecycle & Health</a>
                     </div>
                 </div>
             </div>
@@ -55,8 +58,7 @@
             </div>
         </section>
 
-        <section id="customer-details" class="hidden flex flex-col gap-6 mt-8 p-6 bg-gray-50 rounded-lg shadow-inner">
-            </section>
+        <section id="customer-details" class="hidden"></section>
         
         <div id="no-data-message" class="text-center p-8 mt-8">
             <svg class="w-20 h-20 text-gray-400 mx-auto mb-4 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -67,5 +69,27 @@
 
     </div>
     <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const reportsButton = document.getElementById('reports-menu-button');
+            const reportsDropdown = document.getElementById('reports-dropdown');
+            
+            reportsButton.addEventListener('click', () => {
+                const isHidden = reportsDropdown.classList.contains('hidden');
+                if (isHidden) {
+                    reportsDropdown.classList.remove('hidden');
+                } else {
+                    reportsDropdown.classList.add('hidden');
+                }
+            });
+
+            // Close the dropdown if the user clicks outside of it
+            window.addEventListener('click', (event) => {
+                if (!reportsButton.contains(event.target) && !reportsDropdown.contains(event.target)) {
+                    reportsDropdown.classList.add('hidden');
+                }
+            });
+        });
+    </script>
 </body>
 </html>
