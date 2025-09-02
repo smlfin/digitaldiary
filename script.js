@@ -5,14 +5,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const employeeSelect = document.getElementById('employee-select');
     const customerSelect = document.getElementById('customer-select');
     const customerDetailsDiv = document.getElementById('customer-details');
-    const leftPage = document.getElementById('left-page');
-    const rightPage = document.getElementById('right-page');
     const noDataMessage = document.getElementById('no-data-message');
     const messageText = document.getElementById('message-text');
 
     let allData = [];
 
-    // Function to fetch and parse the CSV data
     const fetchAndParseData = async () => {
         try {
             const response = await fetch(CSV_URL);
@@ -20,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const rows = csvText.split('\n').filter(row => row.trim() !== '');
             const headers = rows[0].split(',').map(header => header.trim().replace(/[^a-zA-Z0-9]/g, ''));
-            
+
             const parsedData = rows.slice(1).map(row => {
                 const values = row.split(',');
                 const obj = {};
@@ -29,9 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
                 return obj;
             });
-            
             return parsedData;
-
         } catch (error) {
             console.error("Error fetching or parsing CSV:", error);
             messageText.textContent = "Failed to load data. Please check the CSV link and your network connection.";
@@ -39,7 +34,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Main function to initialize the dashboard
     const initDashboard = async () => {
         allData = await fetchAndParseData();
         if (allData.length > 0) {
@@ -51,7 +45,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Function to populate the branch dropdown
     const populateBranches = () => {
         const branches = [...new Set(allData.map(lead => lead.BRANCHNAME))];
         branches.forEach(branch => {
@@ -62,7 +55,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    // Event listener for branch selection
     branchSelect.addEventListener('change', () => {
         const selectedBranch = branchSelect.value;
         const employees = [...new Set(allData
@@ -84,7 +76,6 @@ document.addEventListener('DOMContentLoaded', () => {
         messageText.textContent = "Please select an employee and customer to view details.";
     });
 
-    // Event listener for employee selection
     employeeSelect.addEventListener('change', () => {
         const selectedBranch = branchSelect.value;
         const selectedEmployee = employeeSelect.value;
@@ -105,7 +96,6 @@ document.addEventListener('DOMContentLoaded', () => {
         messageText.textContent = "Please select a customer to view details.";
     });
 
-    // Event listener for customer selection
     customerSelect.addEventListener('change', () => {
         const selectedCustomer = customerSelect.value;
         const customerData = allData.find(lead => lead.CustomerName === selectedCustomer);
@@ -121,7 +111,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Function to render customer details in a diary-like layout
     const renderCustomerDetails = (data) => {
         const sections = {
             "Lead & Employee Info": [
@@ -130,6 +119,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 { key: 'EMPLOYEENAME', label: 'Employee Name' },
                 { key: 'EMPLOYEECODE', label: 'Employee Code' }
             ],
+            "Job & Income": [
+                { key: 'JobCategory', label: 'Job Category' },
+                { key: 'JobDetails', label: 'Job Details' },
+                { key: 'Averagemonthlycome', label: 'Average Monthly Income' }
+            ],
             "Customer Contact Details": [
                 { key: 'CustomerName', label: 'Customer Name' },
                 { key: 'CustomerAddress', label: 'Customer Address' },
@@ -137,11 +131,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 { key: 'District', label: 'District' },
                 { key: 'Pincode', label: 'Pincode' },
                 { key: 'Customerphonenumber', label: 'Customer Phone Number' }
-            ],
-            "Job & Income": [
-                { key: 'JobCategory', label: 'Job Category' },
-                { key: 'JobDetails', label: 'Job Details' },
-                { key: 'Averagemonthlycome', label: 'Average Monthly Income' }
             ],
             "Personal & Family Details": [
                 { key: 'Birthday', label: 'Birthday' },
@@ -172,43 +161,36 @@ document.addEventListener('DOMContentLoaded', () => {
             ]
         };
 
-        const leftPageSections = ["Lead & Employee Info", "Customer Contact Details"];
-        const rightPageSections = ["Job & Income", "Personal & Family Details", "Lead Status & Follow-up"];
+        const sectionGroups = [
+            ["Lead & Employee Info", "Job & Income"],
+            ["Customer Contact Details", "Personal & Family Details"],
+            ["Lead Status & Follow-up"]
+        ];
 
-        const renderSection = (title, items) => {
-            let htmlContent = `<div class="detail-card">
-                <h3 class="text-xl font-semibold">${title}</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-y-4 gap-x-8">`;
-            items.forEach(item => {
-                const value = data[item.key] || 'N/A';
-                htmlContent += `
-                    <div class="detail-item">
-                        <p>${item.label}</p>
-                        <p class="mt-1">${value}</p>
-                    </div>`;
+        let htmlContent = '';
+        sectionGroups.forEach(group => {
+            htmlContent += `<div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">`;
+            group.forEach(sectionTitle => {
+                const sectionItems = sections[sectionTitle];
+                if (sectionItems) {
+                    htmlContent += `<div class="detail-card ${sectionTitle.toLowerCase().replace(/ /g, '-')}">
+                        <h3 class="text-xl font-semibold">${sectionTitle}</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8">`;
+                    sectionItems.forEach(item => {
+                        const value = data[item.key] || 'N/A';
+                        htmlContent += `
+                            <div class="detail-item">
+                                <p class="text-sm font-medium text-gray-500">${item.label}</p>
+                                <p class="mt-1 text-base font-semibold text-gray-900">${value}</p>
+                            </div>`;
+                    });
+                    htmlContent += `</div></div>`;
+                }
             });
-            htmlContent += `</div></div>`;
-            return htmlContent;
-        };
-
-        let leftContent = '';
-        leftPageSections.forEach(sectionTitle => {
-            if (sections[sectionTitle]) {
-                leftContent += renderSection(sectionTitle, sections[sectionTitle]);
-            }
+            htmlContent += `</div>`;
         });
-
-        let rightContent = '';
-        rightPageSections.forEach(sectionTitle => {
-            if (sections[sectionTitle]) {
-                rightContent += renderSection(sectionTitle, sections[sectionTitle]);
-            }
-        });
-
-        leftPage.innerHTML = leftContent;
-        rightPage.innerHTML = rightContent;
+        customerDetailsDiv.innerHTML = htmlContent;
     };
 
-    // Kick off the data fetching
     initDashboard();
 });
