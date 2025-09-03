@@ -148,7 +148,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 { key: 'Detaileddescriptionrelation', label: 'Detailed Description & Relation' }
             ],
             "Lead Status & Follow-up": [
-                 { key: 'ClosedAmount', label: 'Closed Amount' },
+                { key: 'ProductDiscussed', label: 'Product Discussed' },                 
+                { key: 'ClosedAmount', label: 'Closed Amount' },
                 { key: 'Howmanyvisitcompleted', label: 'Number of Visits Completed' },
                 { key: 'VisitDays', label: 'Visit Days' },
                 { key: 'Mention2ndvisit', label: 'Mention 2nd Visit' },

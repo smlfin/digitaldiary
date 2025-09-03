@@ -10,12 +10,12 @@
 <body class="bg-gray-100 p-8">
 
     <div class="container mx-auto max-w-7xl bg-white rounded-xl shadow-lg p-8 md:p-12">
-        
+
         <header class="text-center mb-10">
             <h1 class="text-4xl font-bold text-gray-800">Lead Management Dashboard</h1>
             <p class="text-md text-gray-600 mt-2">Filter and view customer details.</p>
         </header>
-        
+
         <nav class="flex justify-end mb-6">
             <div class="relative inline-block text-left">
                 <div>
@@ -28,10 +28,11 @@
                 </div>
                 <div class="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none hidden" role="menu" aria-orientation="vertical" aria-labelledby="reports-menu-button" tabindex="-1" id="reports-dropdown">
                     <div class="py-1" role="none">
-                        <a href="combined_reports.htm" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem" tabindex="-1">Combined Reports</a>
-                        <a href="performance_report.htm" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem" tabindex="-1">Performance Report</a>
+                        <a href="combined_reports.htm" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem" tabindex="-1">Lead Health</a>
+                        <a href="performance_report.htm" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem" tabindex="-1">Lead Completion Status</a>
                         <a href="demographics_report.htm" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem" tabindex="-1">Customer & Demographic Insights</a>
                         <a href="lifecycle_report.htm" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem" tabindex="-1">Lead Lifecycle & Health</a>
+<a href="product_priority.htm" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem" tabindex="-1">Product Priority</a>
                     </div>
                 </div>
             </div>
@@ -59,7 +60,7 @@
         </section>
 
         <section id="customer-details" class="hidden"></section>
-        
+
         <div id="no-data-message" class="text-center p-8 mt-8">
             <svg class="w-20 h-20 text-gray-400 mx-auto mb-4 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2v-2m0 2a4 4 0 100 8m0-8a4 4 0 100 8m0 0a4 4 0 100-8m0 8h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -73,7 +74,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             const reportsButton = document.getElementById('reports-menu-button');
             const reportsDropdown = document.getElementById('reports-dropdown');
-            
+
             reportsButton.addEventListener('click', () => {
                 const isHidden = reportsDropdown.classList.contains('hidden');
                 if (isHidden) {

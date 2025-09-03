@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Combined Performance Reports</title>
+    <title>Product Priority Report</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="report.css">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -12,17 +12,18 @@
 
     <div class="container mx-auto max-w-7xl bg-white rounded-xl shadow-lg p-8 md:p-12">
         <header class="text-center mb-10">
-            <h1 class="text-4xl font-bold text-gray-800">Performance Reports Dashboard</h1>
-            <p class="text-md text-gray-600 mt-2">A consolidated view of all key performance metrics.</p>
+            <h1 class="text-4xl font-bold text-gray-800">Product Priority Report</h1>
+            <p class="text-md text-gray-600 mt-2">Insights on product performance and customer preferences.</p>
         </header>
 
         <a href="index.htm" class="mb-4 text-purple-600 font-semibold hover:underline block text-left">&larr; Back to Home</a>
-
-        <section id="reports-container" class="space-y-12">
-            <div id="conversion-report-container" class="report-section"></div>
-            <div id="amount-report-container" class="report-section"></div>
-            <div id="product-report-container" class="report-section"></div>
-            <div id="visit-report-container" class="report-section"></div>
+        
+        <section id="reports-container" class="space-y-12 mt-8">
+            <div id="most-pitched-container" class="report-section"></div>
+            <div id="most-closed-container" class="report-section"></div>
+            <div id="preferred-by-age-container" class="report-section"></div>
+            <div id="preferred-by-income-container" class="report-section"></div>
+            <div id="most-easily-closed-container" class="report-section"></div>
         </section>
 
         <div id="no-data-message" class="text-center p-8 mt-8 hidden">
@@ -32,6 +33,6 @@
             <p id="message-text" class="text-lg text-gray-500">Loading data...</p>
         </div>
     </div>
-    <script src="combined_reports.js"></script>
+    <script src="product_priority.js"></script>
 </body>
 </html>
